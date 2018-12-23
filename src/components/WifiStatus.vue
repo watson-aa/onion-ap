@@ -8,11 +8,15 @@
 
         <p class="loading" v-if="loading">Loading...</p>
 
-        <p> <b>SSID:</b> {{ wifi.config.ssid }} </p>
-        <p> <b>Encryption:</b> {{ wifi.config.encryption }} </p>
-        <p> <b>IP4:</b> {{ wifi.ip4 }} </p>
-        <p> <b>IP6:</b> {{ wifi.ip6 }} </p>
-        <p> <b>MAC:</b> {{ wifi.mac }} </p>
+        <h2> WAN </h2>
+        <p> <b>SSID:</b> {{ wan_config.ssid }} </p>
+        <p> <b>Encryption:</b> {{ wan_config.encryption }} </p>
+        <p> <b>IP4:</b> {{ ap_config.ip4 }} </p>
+        <p> <b>IP6:</b> {{ ap_config.ip6 }} </p>
+        <p> <b>MAC:</b> {{ ap_config.mac }} </p>
+
+        <h2> Access Point </h2>
+
     </section>
 </template>
 
@@ -24,7 +28,8 @@ export default {
     data() {
         return {
             loading: true,
-            wifi: {}
+            ap_config: {},
+            wan_config: {}
         }
     },
     methods: {
@@ -34,6 +39,13 @@ export default {
 
             WifiStatus.getStatus()
             .then(data => {
+                for (let x = 0; x < data.interfaces.length; x++) {
+                    if (data.interfaces[x].section == 'ap') {
+                        this.ap_config = data.interfaces[x].config;
+                    } else if (data.interfaces[x].section == 'sta') {
+                        this.wan_config = data.interfaces[x].config;
+                    }
+                }
                 this.wifi = data;
             })
             .catch(error => console.log(error))

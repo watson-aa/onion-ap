@@ -8,18 +8,26 @@ import re
 print 'Content-Type: text/plain;charset=utf-8'
 print ''
 
+def getAddresses(obj):
+    out = subprocess.Popen(['ifconfig', 'apcli0'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout,stderr = out.communicate()
+
+    obj['ip4'] = re.search('inet addr:(.*) Bcast:.*', stdout).group(1)
+    obj['ip6'] = re.search('inet6 addr: (.*) Scope', stdout).group(1)
+    obj['mac'] = re.search('HWaddr (.*)\w+', stdout).group(1)
+
+    return obj
+
 out = subprocess.Popen(['wifi', 'status'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 stdout,stderr = out.communicate()
 
 parsed = json.loads(stdout)
-output =  parsed['radio0']['interfaces'][1]
-output['key'] = ''
-
-out = subprocess.Popen(['ifconfig', 'apcli0'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-stdout,stderr = out.communicate()
-
-output['ip4'] = re.search('inet addr:(.*) Bcast:.*', stdout).group(1)
-output['ip6'] = re.search('inet6 addr: (.*) Scope', stdout).group(1)
-output['mac'] = re.search('HWaddr (.*)\w+', stdout).group(1)
-
+output =  { 'interfaces': parsed['radio0']['interfaces'] }
+for x in range(len(output['interfaces'])):                
+    # take out the passwords                  
+    output['interfaces'][x]['config'].pop('key', None)
+    # add the local IP and MAC addresses
+    if output['interfaces'][x]['section'] == 'ap':
+        output['interfaces'][x]['config'] = getAddresses(output['interfaces'][x]['config'])
+    
 print json.dumps(output)
