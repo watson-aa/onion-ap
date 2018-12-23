@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+import subprocess
+import json
+import re
+
+print 'Content-Type: text/plain;charset=utf-8'
+print ''
+
+out = subprocess.Popen(['wifi', 'status'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+stdout,stderr = out.communicate()
+
+parsed = json.loads(stdout)
+output =  parsed['radio0']['interfaces'][1]
+output['key'] = ''
+
+out = subprocess.Popen(['ifconfig', 'apcli0'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+stdout,stderr = out.communicate()
+
+output['ip4'] = re.search('inet addr:(.*) Bcast:.*', stdout).group(1)
+output['ip6'] = re.search('inet6 addr: (.*) Scope', stdout).group(1)
+output['mac'] = re.search('HWaddr (.*)\w+', stdout).group(1)
+
+print json.dumps(output)

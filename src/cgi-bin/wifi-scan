@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "Content-type: application/json"
+echo "Access-Control-Allow-Origin: *"
+
+echo ""
+
+ubus call onion wifi-scan '{"device":"ra0"}'
+
+exit 0

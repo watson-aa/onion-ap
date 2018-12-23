@@ -1,0 +1,1 @@
+{"ip4": "192.168.1.29 ", "section": "sta", "mac": "40:A3:6B:C2:19:4", "ip6": "fe80::42a3:6bff:fec2:1940/64", "key": "", "ifname": "apcli0", "config": {"network": ["wwan"], "encryption": "psk2", "disabled": false, "mode": "sta", "key": "smellbelle", "ifname": "apcli0", "ssid": "Mock_Wifi"}}
